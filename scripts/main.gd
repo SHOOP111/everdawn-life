@@ -147,7 +147,7 @@ func _interact() -> void:
 	citizen.belonging = minf(100.0, citizen.belonging + 7.0)
 	citizen.remember("You spoke on %s %d." % [clock.season_name(), clock.day_of_season()])
 	quests.record("talk", 1, "Shared a moment with %s." % citizen.display_name)
-	hud.dialogue("%s · %s %s" % [citizen.display_name, citizen.trait, citizen.job], citizen.greeting())
+	hud.dialogue("%s · %s %s" % [citizen.display_name, citizen.personality_trait, citizen.job], citizen.greeting())
 
 func _use_tool() -> void:
 	var tile := player.target_tile()

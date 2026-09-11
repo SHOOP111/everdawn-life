@@ -8,7 +8,7 @@ const JOBS := ["Farmer", "Baker", "Carpenter", "Herbalist", "Fisher", "Keeper", 
 var id: int
 var display_name: String
 var age: int
-var trait: String
+var personality_trait: String
 var job: String
 var home: Vector2
 var workplace: Vector2
@@ -27,7 +27,7 @@ func _init(citizen_id: int = 0, spawn: Vector2 = Vector2.ZERO) -> void:
 	id = citizen_id
 	display_name = FIRST_NAMES[id % FIRST_NAMES.size()]
 	age = 18 + ((id * 13 + 7) % 48)
-	trait = TRAITS[(id * 5 + 1) % TRAITS.size()]
+	personality_trait = TRAITS[(id * 5 + 1) % TRAITS.size()]
 	job = JOBS[(id * 3 + 2) % JOBS.size()]
 	home = spawn
 	position = spawn
@@ -81,7 +81,7 @@ func greeting() -> String:
 	var thoughts := [
 		"The valley feels %s today." % mood,
 		"I'm %s. Every day teaches the hands something new." % task.to_lower(),
-		"A %s heart notices details others miss." % trait.to_lower(),
+		"A %s heart notices details others miss." % personality_trait.to_lower(),
 		"They say kindness changes a town one small moment at a time.",
 	]
 	return thoughts[(id + memory.size()) % thoughts.size()]

@@ -129,8 +129,8 @@ func _draw_buildings(bounds: Rect2) -> void:
 		draw_colored_polygon(PackedVector2Array([rect.position + Vector2(-8, 2), rect.position + Vector2(rect.size.x * 0.5, -18), rect.position + Vector2(rect.size.x + 8, 2)]), roof)
 		draw_rect(Rect2(rect.position.x + rect.size.x * 0.5 - 7, rect.end.y - 22, 14, 22), Palette.DARK_WOOD)
 		draw_rect(Rect2(rect.position.x + rect.size.x * 0.5 + 3, rect.end.y - 12, 2, 2), Palette.GOLD)
-		for side in [0.22, 0.76]:
-			var wx := rect.position.x + rect.size.x * side - 5
+		for side: float in [0.22, 0.76]:
+			var wx: float = rect.position.x + rect.size.x * side - 5
 			draw_rect(Rect2(wx, rect.position.y + 24, 10, 10), Palette.DARK_WOOD)
 			draw_rect(Rect2(wx + 2, rect.position.y + 26, 6, 6), Color("8dc6c4"))
 			draw_line(Vector2(wx + 5, rect.position.y + 26), Vector2(wx + 5, rect.position.y + 32), Palette.CREAM.darkened(0.2))
@@ -150,7 +150,7 @@ func _draw_farm(bounds: Rect2) -> void:
 		var crop := int(plot.crop)
 		if crop >= 0:
 			var growth := clampf(float(plot.growth), 0.08, 1.0)
-			var plant_color := [Color("89bd58"), Color("6faa58"), Color("d6a84b"), Color("6f9bc6")][crop]
+			var plant_color: Color = [Color("89bd58"), Color("6faa58"), Color("d6a84b"), Color("6f9bc6")][crop]
 			for px in [4, 9, 13]:
 				var ph := 2.0 + growth * 8.0
 				draw_rect(Rect2(pos.x + px, pos.y + 13 - ph, 2, ph), Palette.FOREST)

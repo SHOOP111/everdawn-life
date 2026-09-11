@@ -188,7 +188,7 @@ func _create_help(root: Control) -> void:
 func update_hud(clock: GameClock, player: PlayerController, farm: FarmSystem, prompt: String) -> void:
 	clock_label.text = clock.time_string()
 	date_label.text = "%s · %s %d · Year %d" % [clock.weekday_name(), clock.season_name(), clock.day_of_season(), clock.year]
-	var icon := {"Clear": "☀", "Rain": "☂", "Drizzle": "☂", "Storm": "ϟ", "Snow": "✦", "Mist": "≋", "Windy": "≈", "Sunshower": "☀"}.get(clock.weather, "·")
+	var icon: String = str({"Clear": "☀", "Rain": "☂", "Drizzle": "☂", "Storm": "ϟ", "Snow": "✦", "Mist": "≋", "Windy": "≈", "Sunshower": "☀"}.get(clock.weather, "·"))
 	weather_label.text = "%s  %s" % [icon, clock.weather]
 	tool_label.text = "%s  ·  Q to cycle" % player.current_tool().to_upper()
 	stamina_bar.value = player.stamina
