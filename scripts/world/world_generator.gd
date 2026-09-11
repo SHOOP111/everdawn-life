@@ -2,7 +2,7 @@ class_name WorldGenerator
 extends RefCounted
 
 const TILE := 16
-const MAP_SIZE := Vector2i(160, 120)
+const MAP_SIZE := Vector2i(240, 180)
 const WORLD_SEED := 0xE7E2
 
 var height_map := PackedFloat32Array()
@@ -10,6 +10,7 @@ var moisture_map := PackedFloat32Array()
 var fertility_map := PackedFloat32Array()
 var roads: Array[Rect2i] = []
 var buildings: Array[Dictionary] = []
+var landmarks: Array[Dictionary] = []
 var ponds: Array[Vector2] = []
 var town_center := Vector2(MAP_SIZE.x * TILE * 0.5, MAP_SIZE.y * TILE * 0.5)
 var world_pixel_size := Vector2(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE)
@@ -30,6 +31,7 @@ func generate() -> void:
 			moisture_map[index] = _fbm(x * 0.07, y * 0.07, WORLD_SEED + 307, 4)
 			fertility_map[index] = clampf(moisture_map[index] * 0.55 + (1.0 - absf(height_map[index] - 0.58)) * 0.45, 0.0, 1.0)
 	_create_settlement()
+	_create_landmarks()
 
 func _hash(x: int, y: int, seed: int) -> float:
 	var n := x * 374761393 + y * 668265263 + seed * 144269
@@ -78,6 +80,15 @@ func _create_settlement() -> void:
 		buildings.append({"rect": Rect2(pos, Vector2(float(s[2]), float(s[3]))), "name": s[4], "style": i})
 	ponds = [town_center + Vector2(-440, -210), town_center + Vector2(405, 275)]
 
+func _create_landmarks() -> void:
+	landmarks = [
+		{"name": "Whisperwood Shrine", "position": town_center + Vector2(-980, -620), "color": Color("75a985")},
+		{"name": "Sunken Observatory", "position": town_center + Vector2(930, -675), "color": Color("7593b5")},
+		{"name": "Emberpeak Gate", "position": town_center + Vector2(1120, 520), "color": Color("c07854")},
+		{"name": "Moonfall Grove", "position": town_center + Vector2(-1080, 640), "color": Color("9b80bc")},
+		{"name": "Old King's Bridge", "position": town_center + Vector2(35, 1020), "color": Color("c2a673")},
+	]
+
 func sample_height(tile_x: int, tile_y: int) -> float:
 	if tile_x < 0 or tile_y < 0 or tile_x >= MAP_SIZE.x or tile_y >= MAP_SIZE.y:
 		return 0.0
@@ -115,6 +126,33 @@ func is_blocked(pos: Vector2) -> bool:
 		if rect.grow(4.0).has_point(pos):
 			return true
 	return false
+
+func region_name_at(pos: Vector2) -> String:
+	if pos.distance_to(town_center) < 390.0:
+		return "Everdawn Village"
+	var nearest_name := "The Greenwilds"
+	var nearest_distance := INF
+	for landmark in landmarks:
+		var distance := pos.distance_to(landmark.position)
+		if distance < nearest_distance and distance < 420.0:
+			nearest_distance = distance
+			nearest_name = str(landmark.name)
+	if nearest_distance < INF:
+		return nearest_name
+	var relative := pos - town_center
+	if absf(relative.x) > absf(relative.y):
+		return "Sunward Highlands" if relative.x > 0 else "Whispering Weald"
+	return "Frostmere Reach" if relative.y < 0 else "Amberwater Lowlands"
+
+func nearest_landmark(pos: Vector2, radius: float) -> int:
+	var found := -1
+	var best := radius
+	for i in landmarks.size():
+		var distance := pos.distance_to(landmarks[i].position)
+		if distance < best:
+			best = distance
+			found = i
+	return found
 
 func nearest_building_position(index: int) -> Vector2:
 	var building: Dictionary = buildings[index % buildings.size()]

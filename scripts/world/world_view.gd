@@ -2,6 +2,7 @@ class_name WorldView
 extends Node2D
 
 var world: WorldGenerator
+var resources: ResourceSystem
 var farm: FarmSystem
 var player: PlayerController
 var citizens: Array[CitizenData] = []
@@ -11,9 +12,10 @@ var viewport_world_size := Vector2(640, 360)
 var animation_time := 0.0
 var selected_citizen: int = -1
 
-func configure(p_world: WorldGenerator, p_farm: FarmSystem, p_player: PlayerController,
+func configure(p_world: WorldGenerator, p_resources: ResourceSystem, p_farm: FarmSystem, p_player: PlayerController,
 		p_citizens: Array[CitizenData], p_clock: GameClock) -> void:
 	world = p_world
+	resources = p_resources
 	farm = p_farm
 	player = p_player
 	citizens = p_citizens
@@ -36,8 +38,10 @@ func _draw() -> void:
 	var max_tile := Vector2i(mini(world.MAP_SIZE.x - 1, ceili(bounds.end.x / world.TILE)), mini(world.MAP_SIZE.y - 1, ceili(bounds.end.y / world.TILE)))
 	_draw_terrain(min_tile, max_tile)
 	_draw_roads(bounds)
+	_draw_landmarks(bounds)
 	_draw_farm(bounds)
 	_draw_decor(min_tile, max_tile)
+	_draw_resource_nodes(bounds)
 	_draw_buildings(bounds)
 	_draw_citizens(bounds)
 	_draw_player()
@@ -134,6 +138,47 @@ func _draw_buildings(bounds: Rect2) -> void:
 			draw_rect(Rect2(wx, rect.position.y + 24, 10, 10), Palette.DARK_WOOD)
 			draw_rect(Rect2(wx + 2, rect.position.y + 26, 6, 6), Color("8dc6c4"))
 			draw_line(Vector2(wx + 5, rect.position.y + 26), Vector2(wx + 5, rect.position.y + 32), Palette.CREAM.darkened(0.2))
+
+func _draw_resource_nodes(bounds: Rect2) -> void:
+	if resources == null:
+		return
+	for node in resources.nodes:
+		if not bool(node.available) or not bounds.has_point(node.position):
+			continue
+		var pos: Vector2 = node.position
+		match str(node.type):
+			"Tree":
+				_draw_tree(pos, float(node.quality))
+			"Rock":
+				draw_ellipse_shadow(pos + Vector2(0, 3), Vector2(6, 3))
+				draw_colored_polygon(PackedVector2Array([pos + Vector2(-6, 3), pos + Vector2(-4, -3), pos + Vector2(1, -7), pos + Vector2(7, 2)]), Palette.HIGHLAND.lightened(0.1))
+				draw_line(pos + Vector2(-3, -2), pos + Vector2(2, -5), Palette.HIGHLAND.lightened(0.3), 1.0)
+			"Crystal":
+				draw_colored_polygon(PackedVector2Array([pos + Vector2(-4, 4), pos + Vector2(-2, -6), pos + Vector2(0, -9), pos + Vector2(4, 4)]), Color("75d5d0"))
+				draw_line(pos + Vector2(0, -7), pos + Vector2(0, 2), Color("d9ffff"), 1.0)
+			"Herb":
+				draw_rect(Rect2(pos.x - 3, pos.y - 4, 2, 6), Palette.LIGHT_GRASS)
+				draw_rect(Rect2(pos.x + 1, pos.y - 6, 2, 8), Palette.FOREST.lightened(0.2))
+			"Berry Bush":
+				draw_circle(pos, 6.0, Palette.FOREST)
+				draw_circle(pos + Vector2(-2, -2), 1.4, Color("b94f63"))
+				draw_circle(pos + Vector2(3, 1), 1.4, Color("b94f63"))
+			"Mushroom":
+				draw_rect(Rect2(pos.x - 1, pos.y - 2, 2, 5), Palette.CREAM)
+				draw_rect(Rect2(pos.x - 4, pos.y - 4, 8, 3), Palette.ROOF_RED)
+
+func _draw_landmarks(bounds: Rect2) -> void:
+	for landmark in world.landmarks:
+		var pos: Vector2 = landmark.position
+		if not bounds.grow(80.0).has_point(pos):
+			continue
+		var color: Color = landmark.color
+		draw_ellipse_shadow(pos + Vector2(0, 14), Vector2(28, 8))
+		draw_colored_polygon(PackedVector2Array([pos + Vector2(-18, 14), pos + Vector2(-12, -20), pos + Vector2(0, -32), pos + Vector2(13, -18), pos + Vector2(19, 14)]), color.darkened(0.25))
+		draw_rect(Rect2(pos.x - 10, pos.y - 15, 20, 27), color)
+		draw_rect(Rect2(pos.x - 4, pos.y - 10, 8, 22), Palette.INK)
+		draw_circle(pos + Vector2(0, -22), 5.0 + sin(animation_time * 2.0), color.lightened(0.35))
+		draw_string(ThemeDB.fallback_font, pos + Vector2(-45, 27), str(landmark.name), HORIZONTAL_ALIGNMENT_CENTER, 90, 9, Palette.CREAM)
 
 func _draw_farm(bounds: Rect2) -> void:
 	for key in farm.plots:

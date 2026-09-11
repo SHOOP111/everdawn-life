@@ -6,7 +6,10 @@ const GROWTH_DAYS := [3.0, 5.0, 7.0, 4.0]
 
 var plots: Dictionary = {}
 var inventory := {"Turnip Seeds": 12, "Moonbean Seeds": 8, "Sunroot Seeds": 6, "Bluebell Seeds": 8,
-	"Turnip": 0, "Moonbean": 0, "Sunroot": 0, "Bluebell": 0, "Wood": 8, "Stone": 4}
+	"Turnip": 0, "Moonbean": 0, "Sunroot": 0, "Bluebell": 0, "Wild Herb": 0, "Berry": 0,
+	"Mushroom": 0, "Fish": 0, "Crystal": 0, "Wood": 8, "Stone": 4, "Field Snack": 0,
+	"Herbal Tonic": 0, "Wooden Fence": 0, "Stone Path": 0, "Bee House": 0, "Preserves Jar": 0,
+	"Moon Lantern": 0, "Ancient Compass": 0}
 var selected_seed: int = 0
 
 func plot_key(tile: Vector2i) -> String:
@@ -46,7 +49,7 @@ func water(tile: Vector2i) -> String:
 	plots[key] = plot
 	return "The soil drinks deeply."
 
-func harvest(tile: Vector2i) -> String:
+func harvest(tile: Vector2i, skill_multiplier: float = 1.0) -> String:
 	var key := plot_key(tile)
 	if not plots.has(key):
 		return "Nothing to harvest."
@@ -55,7 +58,7 @@ func harvest(tile: Vector2i) -> String:
 		return "It needs more time."
 	var crop_id := int(plot.crop)
 	var crop_name: String = CROP_NAMES[crop_id]
-	var yield_count := 2 + int(float(plot.fertility) * 3.0)
+	var yield_count := maxi(1, roundi((2.0 + float(plot.fertility) * 3.0) * skill_multiplier))
 	inventory[crop_name] = int(inventory.get(crop_name, 0)) + yield_count
 	plots.erase(key)
 	return "Harvested %d %s." % [yield_count, crop_name]

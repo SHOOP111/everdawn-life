@@ -22,6 +22,10 @@ var affinity: float = 0.0
 var task: String = "Wandering"
 var memory: Array[String] = []
 var speed: float
+var relationship_stage: int = 0
+var last_spoken_day: int = -1
+var birthday: int
+var relationship_events: Array[String] = []
 
 func _init(citizen_id: int = 0, spawn: Vector2 = Vector2.ZERO) -> void:
 	id = citizen_id
@@ -33,6 +37,7 @@ func _init(citizen_id: int = 0, spawn: Vector2 = Vector2.ZERO) -> void:
 	position = spawn
 	destination = spawn
 	speed = 15.0 + float(id % 4)
+	birthday = 1 + ((id * 17 + 9) % 112)
 
 func choose_schedule(hour: int, day: int, town_center: Vector2) -> void:
 	var seed := id * 73 + day * 19 + hour * 31
@@ -86,10 +91,38 @@ func greeting() -> String:
 	]
 	return thoughts[(id + memory.size()) % thoughts.size()]
 
+func deepen_relationship(current_day: int) -> String:
+	var gain := 1.0 if last_spoken_day == current_day else 3.0
+	last_spoken_day = current_day
+	affinity = minf(100.0, affinity + gain)
+	belonging = minf(100.0, belonging + 6.0)
+	var old_stage := relationship_stage
+	if affinity >= 75.0:
+		relationship_stage = 4
+	elif affinity >= 45.0:
+		relationship_stage = 3
+	elif affinity >= 22.0:
+		relationship_stage = 2
+	elif affinity >= 8.0:
+		relationship_stage = 1
+	if relationship_stage > old_stage:
+		var stages := ["Acquaintance", "Friend", "Close Friend", "Kindred Spirit"]
+		var event := "%s now considers you a %s." % [display_name, stages[relationship_stage - 1]]
+		relationship_events.push_front(event)
+		return event
+	return ""
+
+func relationship_name() -> String:
+	return ["New Face", "Acquaintance", "Friend", "Close Friend", "Kindred Spirit"][relationship_stage]
+
+func birthday_today(current_day: int) -> bool:
+	return birthday == current_day
+
 func to_dict() -> Dictionary:
 	return {"id": id, "name": display_name, "position": [position.x, position.y],
 		"energy": energy, "hunger": hunger, "belonging": belonging, "joy": joy,
-		"affinity": affinity, "task": task, "memory": memory}
+		"affinity": affinity, "task": task, "memory": memory, "relationship_stage": relationship_stage,
+		"last_spoken_day": last_spoken_day, "relationship_events": relationship_events}
 
 func apply_dict(data: Dictionary) -> void:
 	var pos: Array = data.get("position", [position.x, position.y])
@@ -99,6 +132,11 @@ func apply_dict(data: Dictionary) -> void:
 	belonging = float(data.get("belonging", belonging))
 	joy = float(data.get("joy", joy))
 	affinity = float(data.get("affinity", affinity))
+	relationship_stage = int(data.get("relationship_stage", relationship_stage))
+	last_spoken_day = int(data.get("last_spoken_day", last_spoken_day))
+	relationship_events.clear()
+	for event in data.get("relationship_events", []):
+		relationship_events.append(str(event))
 	task = str(data.get("task", task))
 	memory.clear()
 	for item in data.get("memory", []):

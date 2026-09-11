@@ -5,6 +5,11 @@ var quests: Array[Dictionary] = [
 	{"title": "Roots in New Soil", "description": "Till and plant your first garden plot.", "type": "plant", "target": 1, "progress": 0, "reward": "The valley remembers care.", "done": false},
 	{"title": "Names Become Neighbors", "description": "Speak with three townsfolk.", "type": "talk", "target": 3, "progress": 0, "reward": "+15 community renown", "done": false},
 	{"title": "A Small Abundance", "description": "Harvest five crops.", "type": "harvest", "target": 5, "progress": 0, "reward": "A new seed variety", "done": false},
+	{"title": "Beyond the Chimneys", "description": "Discover three regions beyond Everdawn.", "type": "discover", "target": 3, "progress": 0, "reward": "+15 exploration renown", "done": false},
+	{"title": "River Stories", "description": "Catch four fish from the valley waters.", "type": "fish", "target": 4, "progress": 0, "reward": "The fisher's respect", "done": false},
+	{"title": "Made by Hand", "description": "Craft three useful objects.", "type": "craft", "target": 3, "progress": 0, "reward": "Workshop membership", "done": false},
+	{"title": "The Valley Thrives", "description": "Earn 500 petals through the market.", "type": "earn", "target": 500, "progress": 0, "reward": "Merchant's crest", "done": false},
+	{"title": "Keeper of Seasons", "description": "Attend two seasonal festivals.", "type": "festival", "target": 2, "progress": 0, "reward": "Festival mantle", "done": false},
 ]
 var renown: int = 0
 var event_log: Array[String] = ["You arrived in Everdawn Valley."]

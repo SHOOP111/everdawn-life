@@ -8,8 +8,12 @@ var position := Vector2.ZERO
 var facing := Vector2.DOWN
 var velocity := Vector2.ZERO
 var stamina := 100.0
-var tools := ["Hoe", "Seeds", "Watering Can", "Hands"]
+var tools := ["Hoe", "Seeds", "Watering Can", "Hands", "Fishing Rod", "Gather"]
 var selected_tool: int = 0
+var health: float = 100.0
+var warmth: float = 100.0
+var distance_walked: float = 0.0
+var discovered_regions: Array[String] = ["Everdawn Village"]
 var footsteps: float = 0.0
 
 func update(delta: float, world: WorldGenerator, input_enabled: bool = true) -> bool:
@@ -33,7 +37,9 @@ func update(delta: float, world: WorldGenerator, input_enabled: bool = true) -> 
 	if not world.is_blocked(next_y):
 		position.y = next_y.y
 	if position != old_position:
-		footsteps += old_position.distance_to(position)
+		var traveled := old_position.distance_to(position)
+		footsteps += traveled
+		distance_walked += traveled
 	return position != old_position
 
 func target_tile() -> Vector2i:
@@ -46,14 +52,27 @@ func cycle_tool() -> String:
 func current_tool() -> String:
 	return tools[selected_tool]
 
+func discover(region_name: String) -> bool:
+	if region_name in discovered_regions:
+		return false
+	discovered_regions.append(region_name)
+	return true
+
 func to_dict() -> Dictionary:
-	return {"position": [position.x, position.y], "stamina": stamina, "tool": selected_tool,
-		"facing": [facing.x, facing.y]}
+	return {"position": [position.x, position.y], "stamina": stamina, "health": health, "warmth": warmth,
+		"tool": selected_tool, "facing": [facing.x, facing.y], "distance_walked": distance_walked,
+		"discovered_regions": discovered_regions}
 
 func from_dict(data: Dictionary) -> void:
 	var pos: Array = data.get("position", [position.x, position.y])
 	position = Vector2(float(pos[0]), float(pos[1]))
 	stamina = float(data.get("stamina", stamina))
+	health = float(data.get("health", health))
+	warmth = float(data.get("warmth", warmth))
+	distance_walked = float(data.get("distance_walked", distance_walked))
+	discovered_regions.clear()
+	for region in data.get("discovered_regions", ["Everdawn Village"]):
+		discovered_regions.append(str(region))
 	selected_tool = int(data.get("tool", selected_tool))
 	var face: Array = data.get("facing", [0.0, 1.0])
 	facing = Vector2(float(face[0]), float(face[1]))
