@@ -1,0 +1,68 @@
+name: Validate and build Everdawn Life
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: everdawn-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Godot parser and simulation validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install Godot and export templates
+        uses: chickensoft-games/setup-godot@c233594225991af5aec714e52457cc76d6df8fa2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import assets and validate all scripts
+        run: godot --headless --path . --import
+      - name: Run focused world-simulation smoke test
+        run: godot --headless --path . --script tests/smoke_test.gd
+
+  export:
+    name: Export ${{ matrix.preset }} release
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            preset: Linux
+            artifact: Everdawn-Life-Linux
+            output: artifacts/builds/EverdawnLife.x86_64
+          - os: windows-latest
+            preset: Windows Desktop
+            artifact: Everdawn-Life-Windows
+            output: artifacts/builds/EverdawnLife.exe
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install Godot and export templates
+        uses: chickensoft-games/setup-godot@c233594225991af5aec714e52457cc76d6df8fa2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Export optimized release
+        run: godot --headless --path . --export-release "${{ matrix.preset }}" "${{ matrix.output }}"
+      - name: Upload playable build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.output }}
+          if-no-files-found: error
+          retention-days: 14

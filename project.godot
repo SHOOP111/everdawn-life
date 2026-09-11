@@ -1,0 +1,45 @@
+; Everdawn Life — generated and maintained as a portable Godot 4 project.
+config_version=5
+
+[application]
+config/name="Everdawn Life"
+config/description="A procedural high-resolution pixel-art world life simulator"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.4", "GL Compatibility")
+boot_splash/bg_color=Color(0.035, 0.055, 0.075, 1)
+boot_splash/show_image=false
+
+[display]
+window/size/viewport_width=640
+window/size/viewport_height=360
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/handheld/orientation=1
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+textures/canvas_textures/default_texture_filter=0
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true
+environment/defaults/default_clear_color=Color(0.025, 0.039, 0.055, 1)
+
+[physics]
+common/physics_ticks_per_second=60
+
+[input]
+move_left={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":65),Object(InputEventKey,"physical_keycode":4194311)]}
+move_right={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":68),Object(InputEventKey,"physical_keycode":4194313)]}
+move_up={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":87),Object(InputEventKey,"physical_keycode":4194320)]}
+move_down={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":83),Object(InputEventKey,"physical_keycode":4194322)]}
+sprint={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":4194325),Object(InputEventKey,"physical_keycode":16777237)]}
+interact={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":69)]}
+use_tool={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":32)]}
+cycle_tool={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":81)]}
+journal={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":4194308),Object(InputEventKey,"physical_keycode":74)]}
+save_game={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":4194336)]}
+load_game={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":4194340)]}
+zoom_in={"deadzone":0.25,"events":[Object(InputEventMouseButton,"button_index":4)]}
+zoom_out={"deadzone":0.25,"events":[Object(InputEventMouseButton,"button_index":5)]}
