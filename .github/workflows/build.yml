@@ -57,8 +57,22 @@ jobs:
           version: 4.4.1
           use-dotnet: false
           include-templates: true
-      - name: Export optimized release
+      - name: Export optimized release (Linux)
+        if: runner.os != 'Windows'
         run: godot --headless --path . --export-release "${{ matrix.preset }}" "${{ matrix.output }}"
+      - name: Export optimized release (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          EXPORT_PRESET: ${{ matrix.preset }}
+          EXPORT_OUTPUT: ${{ matrix.output }}
+        run: |
+          # The setup action links the GUI-subsystem executable as `godot`.
+          # Start-Process -Wait prevents PowerShell from returning before export ends.
+          $arguments = @('--headless', '--path', '.', '--export-release', $env:EXPORT_PRESET, $env:EXPORT_OUTPUT)
+          $process = Start-Process -FilePath $env:GODOT -ArgumentList $arguments -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Godot export failed with exit code $($process.ExitCode)" }
+          if (-not (Test-Path $env:EXPORT_OUTPUT)) { throw "Godot did not create $env:EXPORT_OUTPUT" }
       - name: Upload playable build
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
